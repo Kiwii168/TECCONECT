@@ -1,10 +1,20 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, BackHandler } from 'react-native';
 
 // Obtener las dimensiones de la pantalla
 const { width, height } = Dimensions.get('window');
 
 const Inicio = ({ navigation }) => {
+  // Deshabilitar el botón de regresar del teléfono
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => true // Retorna true para bloquear el botón
+    );
+
+    return () => backHandler.remove(); // Limpia el evento al desmontar el componente
+  }, []);
+
   return (
     <View style={styles.container}>
       {/* Imagen */}
@@ -32,6 +42,11 @@ const Inicio = ({ navigation }) => {
           <Text style={styles.buttonText}>Registro</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Texto para regresar a la pantalla Idioma */}
+      <TouchableOpacity onPress={() => navigation.navigate('Idioma')}>
+        <Text style={styles.link}>Regresar</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -77,6 +92,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: width * 0.04,  // Tamaño de texto relativo al ancho
     textAlign: 'center',
+  },
+  link: {
+    color: '#007BFF',
+    fontSize: width * 0.04,
+    marginTop: height * 0.03,
+    textDecorationLine: 'underline', // Subrayado para indicar que es un enlace
   },
 });
 

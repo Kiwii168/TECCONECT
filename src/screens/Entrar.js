@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, BackHandler } from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 function Entrar() {
   const [email, setEmail] = useState("");
@@ -41,10 +41,24 @@ function Entrar() {
     }
   };
 
+  // Deshabilitar el botón de regresar del dispositivo
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        // Bloquea el botón de regresar
+        return true;
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () => BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+    }, [])
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Iniciar sesión</Text>
-      
+
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
@@ -53,7 +67,7 @@ function Entrar() {
         onChangeText={setEmail}
         autoCapitalize="none"
       />
-      
+
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
@@ -61,12 +75,19 @@ function Entrar() {
         value={password}
         onChangeText={setPassword}
       />
-      
-      <Button 
-        title={loading ? "Cargando..." : "Iniciar sesión"} 
-        onPress={handleLogin} 
+
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleLogin}
         disabled={loading} // Desactivar botón mientras carga
-      />
+      >
+        <Text style={styles.buttonText}>{loading ? "Cargando..." : "Iniciar sesión"}</Text>
+      </TouchableOpacity>
+
+      {/* Texto personalizado para regresar */}
+      <TouchableOpacity onPress={() => navigation.navigate("Inicio")} style={styles.link}>
+        <Text style={styles.linkText}>Regresar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -91,6 +112,31 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 10,
+  },
+  button: {
+    width: "100%",
+    height: 50,
+    backgroundColor: "#000080", // Cambia el color del botón aquí
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc", // Color del botón deshabilitado
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  link: {
+    marginTop: 20,
+  },
+  linkText: {
+    color: "#007BFF",
+    textDecorationLine: "underline",
+    fontSize: 16,
   },
 });
 

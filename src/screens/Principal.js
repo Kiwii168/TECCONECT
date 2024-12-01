@@ -15,7 +15,7 @@ function Principal({ navigation }) {
 
       {/* Mensaje de bienvenida debajo de la imagen */}
       <Text style={{ fontSize: 18, textAlign: "center", marginBottom: 20 }}>
-        ¡Bienvenido al evento Innovatec!
+        ¡Bienvenido a TECCONECT!
       </Text>
     </View>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, BackHandler, TouchableOpacity } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Registro = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -7,16 +8,42 @@ const Registro = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [])
+  );
+
   const handleRegister = () => {
-    // Navegar a la pantalla "Entrar" después del registro
-    navigation.navigate('Tecs');
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+
+    setError(null);
+
+    Alert.alert('Éxito', 'Registrado con éxito', [
+      { text: 'OK', onPress: () => navigation.navigate('Entrar') },
+    ]);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Registro</Text>
+      <Text style={styles.title}>Registra tu cuenta</Text>
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      
+
+      <TextInput
+        style={styles.input}
+        placeholder="Nombre"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+      />
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
@@ -24,7 +51,7 @@ const Registro = ({ navigation }) => {
         onChangeText={setEmail}
         keyboardType="email-address"
       />
-      
+
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
@@ -32,7 +59,7 @@ const Registro = ({ navigation }) => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      
+
       <TextInput
         style={styles.input}
         placeholder="Confirmar contraseña"
@@ -40,8 +67,14 @@ const Registro = ({ navigation }) => {
         onChangeText={setConfirmPassword}
         secureTextEntry
       />
-      
-      <Button title="Registrar" onPress={handleRegister} />
+
+      <View style={styles.buttonContainer}>
+        <Button title="Registrar" onPress={handleRegister} color="#000080" />
+      </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Inicio')}>
+        <Text style={styles.link}>Regresar</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -64,9 +97,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
   },
+  buttonContainer: {
+    width: '100%',
+    marginTop: 10,
+    marginBottom: 20,
+  },
   error: {
     color: 'red',
     marginBottom: 10,
+  },
+  link: {
+    marginTop: 20,
+    color: 'blue',
+    textDecorationLine: 'underline',
+    fontSize: 16,
   },
 });
 
