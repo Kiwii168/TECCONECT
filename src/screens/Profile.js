@@ -3,14 +3,14 @@ import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, Alert } fr
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function Perfil({ navigation }) {
+function Profile({ navigation }) {
   const [editable, setEditable] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    nombre: "",
-    correo: "",
+    name: "",
+    email: "",
     password: "",
-    tecnologico: "",
-    carrera: "",
+    institution: "",
+    degree: "",
   });
 
   const fetchUserData = async () => {
@@ -20,23 +20,23 @@ function Perfil({ navigation }) {
       if (userId) {
         const response = await fetch(`https://app-tq3o5pftgq-uc.a.run.app/api/user/${userId}`);
         if (!response.ok) {
-          throw new Error("Error al obtener los datos del usuario.");
+          throw new Error("Error fetching user data.");
         }
         const data = await response.json();
 
         setUserInfo({
-          nombre: data.user.name || '',
-          correo: data.user.email || '',
+          name: data.user.name || '',
+          email: data.user.email || '',
           password: data.user.password || '',
-          tecnologico: data.user.tec || '',
-          carrera: data.user.degree[0] || '',
+          institution: data.user.tec || '',
+          degree: data.user.degree[0] || '',
         });
       } else {
-        throw new Error("No se encontró el ID de usuario.");
+        throw new Error("User ID not found.");
       }
     } catch (error) {
-      console.error("Error al obtener los datos del usuario:", error);
-      Alert.alert("Error", "Hubo un problema al recuperar los datos.");
+      console.error("Error fetching user data:", error);
+      Alert.alert("Error", "There was a problem retrieving the data.");
     }
   };
 
@@ -45,43 +45,43 @@ function Perfil({ navigation }) {
   }, []);
 
   const validateInputs = () => {
-    const { nombre, correo, password, tecnologico, carrera } = userInfo;
+    const { name, email, password, institution, degree } = userInfo;
     
     // Trim inputs
     const trimmedInputs = {
-      nombre: nombre.trim(),
-      correo: correo.trim(),
+      name: name.trim(),
+      email: email.trim(),
       password: password.trim(),
-      tecnologico: tecnologico.trim(),
-      carrera: carrera.trim()
+      institution: institution.trim(),
+      degree: degree.trim()
     };
 
     // Validation checks
-    if (!trimmedInputs.nombre) {
-      Alert.alert("Error", "El nombre no puede estar vacío.");
+    if (!trimmedInputs.name) {
+      Alert.alert("Error", "Name cannot be empty.");
       return false;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!trimmedInputs.correo || !emailRegex.test(trimmedInputs.correo)) {
-      Alert.alert("Error", "Por favor, ingrese un correo electrónico válido.");
+    if (!trimmedInputs.email || !emailRegex.test(trimmedInputs.email)) {
+      Alert.alert("Error", "Please enter a valid email.");
       return false;
     }
 
     // Password validation
     if (!trimmedInputs.password || trimmedInputs.password.length < 6) {
-      Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres.");
+      Alert.alert("Error", "Password must be at least 6 characters.");
       return false;
     }
 
-    if (!trimmedInputs.tecnologico) {
-      Alert.alert("Error", "El tecnológico no puede estar vacío.");
+    if (!trimmedInputs.institution) {
+      Alert.alert("Error", "Institution cannot be empty.");
       return false;
     }
 
-    if (!trimmedInputs.carrera) {
-      Alert.alert("Error", "La carrera no puede estar vacía.");
+    if (!trimmedInputs.degree) {
+      Alert.alert("Error", "Degree cannot be empty.");
       return false;
     }
 
@@ -103,23 +103,23 @@ function Perfil({ navigation }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: validatedInputs.nombre,
-            email: validatedInputs.correo,
+            name: validatedInputs.name,
+            email: validatedInputs.email,
             password: validatedInputs.password,
-            tec: validatedInputs.tecnologico,
-            degree: [validatedInputs.carrera],
+            tec: validatedInputs.institution,
+            degree: [validatedInputs.degree],
           }),
         });
 
         // Check if response is successful
         if (!response.ok) {
           const errorData = await response.json();
-          console.error("Error de la API:", errorData);
-          throw new Error(errorData.message || "Error al actualizar los datos del usuario.");
+          console.error("API error:", errorData);
+          throw new Error(errorData.message || "Error updating user data.");
         }
 
         const data = await response.json();
-        console.log("Respuesta de la API después de la actualización:", data);
+        console.log("API response after update:", data);
 
         // Reload updated data
         await fetchUserData();
@@ -128,19 +128,19 @@ function Perfil({ navigation }) {
         setEditable(false);
         
         // Show success message
-        Alert.alert("Éxito", "Cambios realizados con éxito.");
+        Alert.alert("Success", "Changes saved successfully.");
       } else {
-        throw new Error("No se encontró el ID de usuario.");
+        throw new Error("User ID not found.");
       }
     } catch (error) {
-      console.error("Error al actualizar los datos:", error);
-      Alert.alert("Error", error.message || "Hubo un problema al guardar los datos.");
+      console.error("Error updating data:", error);
+      Alert.alert("Error", error.message || "There was a problem saving the data.");
     }
   };
 
-  const cerrarSesion = () => {
+  const signOut = () => {
     AsyncStorage.removeItem("userId");
-    navigation.navigate("Entrar");
+    navigation.navigate("Login");
   };
 
   const toggleEditable = () => {
@@ -162,60 +162,60 @@ function Perfil({ navigation }) {
       <MaterialIcons name="account-circle" size={150} color="#000080" style={styles.profileIcon} />
 
       <View style={styles.infoContainer}>
-        <Text style={styles.fieldLabel}>Nombre</Text>
+        <Text style={styles.fieldLabel}>Name</Text>
         <TextInput
           style={[styles.infoText, editable && styles.editableField]}
-          value={userInfo.nombre}
+          value={userInfo.name}
           editable={editable}
-          onChangeText={(value) => handleInputChange("nombre", value)}
-          placeholder="Ingrese su nombre"
+          onChangeText={(value) => handleInputChange("name", value)}
+          placeholder="Enter your name"
         />
 
-        <Text style={styles.fieldLabel}>Correo</Text>
+        <Text style={styles.fieldLabel}>Email</Text>
         <TextInput
           style={[styles.infoText, editable && styles.editableField]}
-          value={userInfo.correo}
+          value={userInfo.email}
           editable={editable}
-          onChangeText={(value) => handleInputChange("correo", value)}
-          placeholder="Ingrese su correo"
+          onChangeText={(value) => handleInputChange("email", value)}
+          placeholder="Enter your email"
           keyboardType="email-address"
           autoCapitalize="none"
         />
 
-        <Text style={styles.fieldLabel}>Tecnológico</Text>
+        <Text style={styles.fieldLabel}>Institution</Text>
         <TextInput
           style={[styles.infoText, editable && styles.editableField]}
-          value={userInfo.tecnologico}
+          value={userInfo.institution}
           editable={editable}
-          onChangeText={(value) => handleInputChange("tecnologico", value)}
-          placeholder="Ingrese su tecnológico"
+          onChangeText={(value) => handleInputChange("institution", value)}
+          placeholder="Enter your institution"
         />
 
-        <Text style={styles.fieldLabel}>Carrera</Text>
+        <Text style={styles.fieldLabel}>Degree</Text>
         <TextInput
           style={[styles.infoText, editable && styles.editableField]}
-          value={userInfo.carrera}
+          value={userInfo.degree}
           editable={editable}
-          onChangeText={(value) => handleInputChange("carrera", value)}
-          placeholder="Ingrese su carrera"
+          onChangeText={(value) => handleInputChange("degree", value)}
+          placeholder="Enter your degree"
         />
 
-        <Text style={styles.fieldLabel}>Contraseña</Text>
+        <Text style={styles.fieldLabel}>Password</Text>
         <TextInput
           style={[styles.infoText, editable && styles.editableField]}
           value={userInfo.password}
           secureTextEntry
           editable={editable}
           onChangeText={(value) => handleInputChange("password", value)}
-          placeholder="Ingrese su contraseña"
+          placeholder="Enter your password"
         />
       </View>
 
       <TouchableOpacity style={styles.editButton} onPress={toggleEditable}>
-        <Text style={styles.editButtonText}>{editable ? "Guardar" : "Editar"}</Text>
+        <Text style={styles.editButtonText}>{editable ? "Save" : "Edit"}</Text>
       </TouchableOpacity>
 
-      <Button title="Cerrar Sesión" onPress={cerrarSesion} color="#f44336" />
+      <Button title="Sign Out" onPress={signOut} color="#f44336" />
     </View>
   );
 }
@@ -270,4 +270,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Perfil;
+export default Profile;

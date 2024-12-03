@@ -4,29 +4,35 @@ import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons'; // Para los iconos de las tabs
+import { Ionicons } from '@expo/vector-icons';
 
-// Importar las pantallas originales
+// Importar las pantallas originales (Español)
 import Inicio from './src/screens/Inicio';
 import Idioma from './src/screens/Idioma';
-import Index from './src/screens/Index';
 import Entrar from './src/screens/Entrar';
 import Registro from './src/screens/Registro';
-import Tecs from './src/screens/Tecs';
-import Carrera from './src/screens/Carrera';
-
-// Importar las nuevas pantallas para el TabNavigator
 import Eventos from './src/screens/Eventos';
-import Plagio from './src/screens/Plagio';
+import Archivos from './src/screens/Archivos';
 import Principal from './src/screens/Principal';
 import Ganadores from './src/screens/Ganadores';
 import Perfil from './src/screens/Perfil';
+
+// Importar las pantallas en inglés
+import Index from './src/screens/Index';
+import Login from './src/screens/Login';
+import Register from './src/screens/Register';
+import Main from './src/screens/Main';
+import Events from './src/screens/Events';
+import Files from './src/screens/Files';
+import Winners from './src/screens/Winners';
+import Profile from './src/screens/Profile';
 
 // Crear los navegadores
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function TabNavigator() {
+// Navegación en español
+function TabNavigatorEsp() {
   return (
     <Tab.Navigator
       initialRouteName="Principal"
@@ -35,8 +41,8 @@ function TabNavigator() {
           let iconName;
           if (route.name === 'Eventos') {
             iconName = 'calendar';
-          } else if (route.name === 'Plagio') {
-            iconName = 'alert';
+          } else if (route.name === 'Archivos') {
+            iconName = 'folder';
           } else if (route.name === 'Principal') {
             iconName = 'home';
           } else if (route.name === 'Ganadores') {
@@ -49,7 +55,7 @@ function TabNavigator() {
       })}
     >
       <Tab.Screen name="Eventos" component={Eventos} />
-      <Tab.Screen name="Plagio" component={Plagio} />
+      <Tab.Screen name="Archivos" component={Archivos} />
       <Tab.Screen name="Principal" component={Principal} />
       <Tab.Screen name="Ganadores" component={Ganadores} />
       <Tab.Screen name="Perfil" component={Perfil} />
@@ -57,44 +63,71 @@ function TabNavigator() {
   );
 }
 
+// Navegación en inglés
+function TabNavigatorEng() {
+  return (
+    <Tab.Navigator
+      initialRouteName="Main"
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+          if (route.name === 'Events') {
+            iconName = 'calendar';
+          } else if (route.name === 'Files') {
+            iconName = 'folder';
+          } else if (route.name === 'Main') {
+            iconName = 'home';
+          } else if (route.name === 'Winners') {
+            iconName = 'trophy';
+          } else if (route.name === 'Profile') {
+            iconName = 'person';
+          }
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Events" component={Events} />
+      <Tab.Screen name="Files" component={Files} />
+      <Tab.Screen name="Main" component={Main} />
+      <Tab.Screen name="Winners" component={Winners} />
+      <Tab.Screen name="Profile" component={Profile} />
+    </Tab.Navigator>
+  );
+}
+
+// Componente principal con la lógica de idioma
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Idioma" // La pantalla inicial es 'Idioma'
+        initialRouteName="Idioma"
         screenOptions={{
-          headerShown: false,  // Oculta el encabezado en todas las pantallas
+          headerShown: false,
           cardStyleInterpolator: ({ current }) => ({
             cardStyle: {
-              opacity: current.progress,  // Hace que las pantallas se desvanezcan al cambiar
+              opacity: current.progress,
             },
           }),
         }}
       >
-        {/* Pantallas originales */}
+        {/* Pantalla para seleccionar el idioma */}
         <Stack.Screen name="Idioma" component={Idioma} />
+
+        {/* Navegación para Español */}
         <Stack.Screen name="Inicio" component={Inicio} />
-        <Stack.Screen name="Index" component={Index} />
-        
-        {/* Pantalla de Entrar y Registro */}
         <Stack.Screen name="Entrar" component={Entrar} />
         <Stack.Screen name="Registro" component={Registro} />
-        
-        {/* Navegación después del registro */}
-        <Stack.Screen 
-          name="Tecs" 
-          component={Tecs} 
-          options={{ gestureEnabled: false }} // Evita que se regrese a la pantalla anterior
-        />
-        <Stack.Screen name="Carrera" component={Carrera} />
-        
-        {/* Agregar el TabNavigator como una pantalla dentro del Stack */}
-        <Stack.Screen 
-          name="Principal" 
-          component={TabNavigator} 
-          options={{ gestureEnabled: false }} // Evita que se regrese a la pantalla anterior
-        />
-        
+        <Stack.Screen name="Eventos" component={Eventos} />
+        <Stack.Screen name="Archivos" component={Archivos} />
+        <Stack.Screen name="Principal" component={TabNavigatorEsp} />
+
+        {/* Navegación para Inglés */}
+        <Stack.Screen name="Index" component={Index} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Events" component={Events} />
+        <Stack.Screen name="Files" component={Files} />
+        <Stack.Screen name="Main" component={TabNavigatorEng} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

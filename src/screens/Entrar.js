@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, BackHandler } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Entrar() {
   const [email, setEmail] = useState("");
@@ -29,7 +30,12 @@ function Entrar() {
 
       if (response.status === 200) {
         Alert.alert("Éxito", "Inicio de sesión exitoso.");
-        navigation.navigate("Principal", { user: data.user }); // Navegar a Principal con datos del usuario
+
+        // Guardar el ID de usuario en AsyncStorage
+        await AsyncStorage.setItem('userId', data.user.id);
+
+        // Navegar a la pantalla Principal pasando el usuario
+        navigation.navigate("Principal", { user: data.user });
       } else {
         Alert.alert("Error", data.message || "Credenciales inválidas.");
       }

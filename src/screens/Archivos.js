@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 
-function Plagio({ navigation }) {
+function Archivos({ navigation }) {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [integrantes, setIntegrantes] = useState("");
@@ -89,5 +89,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Plagio;
+export default Archivos;
 
