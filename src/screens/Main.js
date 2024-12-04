@@ -30,7 +30,7 @@ function Main({ navigation }) {
 
       {/* Image below the text */}
       <Image
-        source={require("../images/Logo.png")} // Adjust the image name according to the image you want to use
+        source={require("../images/Guapos.png")} // Adjust the image name according to the image you want to use
         style={{ width: 300, height: 200, marginTop: 20 }} // Adjust size and margin as needed
         resizeMode="contain" // Ensures the image fits without being cropped
       />

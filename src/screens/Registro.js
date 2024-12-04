@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, BackHandler, TouchableOpacity, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
@@ -10,8 +10,10 @@ const Registro = ({ navigation }) => {
   const [name, setName] = useState('');
   const [error, setError] = useState(null);
   const [selectedTecnologico, setSelectedTecnologico] = useState('');
-  const [selectedCarrera, setSelectedCarrera] = useState(''); // Solo una carrera seleccionada
+  const [selectedCarrera, setSelectedCarrera] = useState('');
   const [tecnologicos, setTecnologicos] = useState([]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const fetchTecnologicos = async () => {
@@ -88,20 +90,30 @@ const Registro = ({ navigation }) => {
           onChangeText={setEmail}
           keyboardType="email-address"
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirmar contraseña"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+            <Text style={styles.eyeText}>{showPassword ? "Ocultar" : "Mostrar"}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirmar contraseña"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry={!showConfirmPassword}
+          />
+          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeIcon}>
+            <Text style={styles.eyeText}>{showConfirmPassword ? "Ocultar" : "Mostrar"}</Text>
+          </TouchableOpacity>
+        </View>
 
         <Picker
           selectedValue={selectedTecnologico}
@@ -197,6 +209,19 @@ const styles = StyleSheet.create({
     color: 'blue',
     textDecorationLine: 'underline',
     fontSize: 16,
+  },
+  passwordContainer: {
+    width: '100%',
+    position: 'relative',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 10,
+    top: 15,
+  },
+  eyeText: {
+    fontSize: 16,
+    color: '#007BFF',
   },
 });
 

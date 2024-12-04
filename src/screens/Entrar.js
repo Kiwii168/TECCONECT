@@ -7,6 +7,7 @@ function Entrar() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false); // Estado para el indicador de carga
+  const [showPassword, setShowPassword] = useState(false); // Estado para mostrar u ocultar la contraseña
   const navigation = useNavigation(); // Navegación
 
   const handleLogin = async () => {
@@ -74,13 +75,18 @@ function Entrar() {
         autoCapitalize="none"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+          <Text style={styles.eyeText}>{showPassword ? "Ocultar" : "Mostrar"}</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity
         style={[styles.button, loading && styles.buttonDisabled]}
@@ -118,6 +124,19 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 10,
+  },
+  passwordContainer: {
+    width: "100%",
+    position: "relative",
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
+    top: 15,
+  },
+  eyeText: {
+    fontSize: 16,
+    color: "#007BFF",
   },
   button: {
     width: "100%",
