@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import * as ScreenOrientation from 'expo-screen-orientation'; // Importa expo-screen-orientation
 
 // Importar las pantallas originales (Español)
 import Inicio from './src/screens/Inicio';
@@ -97,6 +98,16 @@ function TabNavigatorEng() {
 
 // Componente principal con la lógica de idioma
 export default function App() {
+  useEffect(() => {
+    // Usar expo-screen-orientation para desbloquear todas las orientaciones
+    ScreenOrientation.unlockAsync(ScreenOrientation.OrientationLock.UNKNOWN); // Desbloquea todas las orientaciones
+
+    // Limpieza al desmontar
+    return () => {
+      ScreenOrientation.removeOrientationChangeListener();
+    };
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator

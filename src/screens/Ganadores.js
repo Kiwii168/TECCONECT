@@ -1,7 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, Text, Image, StyleSheet, ActivityIndicator, Alert, ScrollView } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import ConfettiCannon from "react-native-confetti-cannon";
+
+// Importa la imagen local
+import LocalImage from "../images/Ganador.jpg";
 
 function Ganadores() {
   const [winner, setWinner] = useState(null);
@@ -19,8 +22,12 @@ function Ganadores() {
   useEffect(() => {
     const fetchWinner = async () => {
       try {
-        const response = await fetch("https://app-tq3o5pftgq-uc.a.run.app/api/winner");
-        const data = await response.json();
+        // Simula una respuesta de la API
+        const data = {
+          event: "2024-12-01",
+          name: "Proyecto Innovador",
+          integrants: ["Juan Pérez", "María García", "Luis Gómez"],
+        };
         setWinner(data);
       } catch (error) {
         Alert.alert("Error", "No se pudo cargar la información del ganador.");
@@ -49,16 +56,15 @@ function Ganadores() {
     );
   }
 
-  const eventDate = new Date(winner.event).toLocaleDateString();
+  const eventDate = new Date(winner.event).toLocaleDateString("es-ES"); // Formato específico
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Ganadores</Text>
       <Image
         style={styles.image}
-        source={{
-          uri: "https://via.placeholder.com/150", // Puedes reemplazar esto con una imagen dinámica si la API la proporciona
-        }}
+        source={LocalImage} // Usamos la imagen local
+        accessibilityLabel="Imagen del ganador" // Añadido para accesibilidad
       />
       <Text style={styles.description}>Evento: {eventDate}</Text>
       <Text style={styles.description}>Nombre del Proyecto: {winner.name}</Text>
@@ -75,13 +81,13 @@ function Ganadores() {
         fadeOut={true}
         autoStart={false}
       />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
@@ -94,10 +100,10 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   image: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    marginBottom: 20,
+    width: 300,  // Imagen más grande
+    height: 300, // Imagen más grande
+    marginBottom: 20, // Se mantiene el margen inferior para separación
+    resizeMode: "contain", // Asegura que la imagen se ajuste dentro de sus dimensiones
   },
   description: {
     fontSize: 16,

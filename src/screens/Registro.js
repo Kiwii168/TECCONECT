@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, BackHandler, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, BackHandler, TouchableOpacity, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 
@@ -10,17 +10,14 @@ const Registro = ({ navigation }) => {
   const [name, setName] = useState('');
   const [error, setError] = useState(null);
   const [selectedTecnologico, setSelectedTecnologico] = useState('');
-  const [selectedCarreras, setSelectedCarreras] = useState([]); // Store multiple selected careers
-  const [tecnologicos, setTecnologicos] = useState([]);  // State for storing Tecnologicos and their careers
+  const [selectedCarrera, setSelectedCarrera] = useState(''); // Solo una carrera seleccionada
+  const [tecnologicos, setTecnologicos] = useState([]);
 
-  // Fetch tecnologicos and carreras from the correct API endpoint
   useEffect(() => {
     const fetchTecnologicos = async () => {
       try {
         const response = await fetch('https://app-tq3o5pftgq-uc.a.run.app/api/tecs');
         const data = await response.json();
-        
-        // Assuming the API returns an array of objects with 'name' and 'degree' properties
         setTecnologicos(data);
       } catch (error) {
         setError('No se pudo cargar la lista de Tecnológicos');
@@ -30,26 +27,13 @@ const Registro = ({ navigation }) => {
     fetchTecnologicos();
   }, []);
 
-  // Handle back press to disable the default back action
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        return true;
-      };
-
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }, [])
-  );
-
-  // Handle registration
   const handleRegister = async () => {
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
       return;
     }
 
-    if (!selectedTecnologico || selectedCarreras.length === 0 || !name || !email || !password) {
+    if (!selectedTecnologico || !selectedCarrera || !name || !email || !password) {
       setError('Por favor completa todos los campos');
       return;
     }
@@ -57,7 +41,6 @@ const Registro = ({ navigation }) => {
     setError(null);
 
     try {
-      // Enviar los datos al servidor usando fetch
       const response = await fetch('https://app-tq3o5pftgq-uc.a.run.app/api/new-user', {
         method: 'POST',
         headers: {
@@ -67,7 +50,7 @@ const Registro = ({ navigation }) => {
           name,
           email,
           password,
-          degree: selectedCarreras, // Send multiple degrees (careers)
+          degree: selectedCarrera,
           tec: selectedTecnologico,
         }),
       });
@@ -86,101 +69,89 @@ const Registro = ({ navigation }) => {
     }
   };
 
-  // Handle selecting or deselecting a career
-  const handleCarreraSelect = (carrera) => {
-    setSelectedCarreras((prevState) => {
-      if (prevState.includes(carrera)) {
-        return prevState.filter((item) => item !== carrera); // Remove carrera if already selected
-      } else {
-        return [...prevState, carrera]; // Add carrera if not already selected
-      }
-    });
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registra tu cuenta</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Registra tu cuenta</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre"
+          value={name}
+          onChangeText={setName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Correo electrónico"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Confirmar contraseña"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Confirmar contraseña"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      />
-
-      {/* Tecnologico Dropdown */}
-      <Picker
-        selectedValue={selectedTecnologico}
-        style={styles.input}
-        onValueChange={(itemValue) => {
-          setSelectedTecnologico(itemValue);
-          setSelectedCarreras([]); // Reset carreras when tecnologico changes
-        }}
-      >
-        <Picker.Item label="Selecciona un Tecnológico" value="" />
-        {tecnologicos && tecnologicos.length > 0 ? (
-          tecnologicos.map((tecnologico, index) => (
+        <Picker
+          selectedValue={selectedTecnologico}
+          style={styles.input}
+          onValueChange={(itemValue) => {
+            setSelectedTecnologico(itemValue);
+            setSelectedCarrera(''); // Limpiar la selección de carrera al cambiar de tecnológico
+          }}
+        >
+          <Picker.Item label="Selecciona un Tecnológico" value="" />
+          {tecnologicos.map((tecnologico, index) => (
             <Picker.Item key={index} label={tecnologico.name} value={tecnologico.name} />
-          ))
-        ) : (
-          <Picker.Item label="Cargando Tecnológicos..." value="" />
+          ))}
+        </Picker>
+
+        {selectedTecnologico && (
+          <View>
+            <Text style={styles.subTitle}>Elige tu carrera</Text>
+            {tecnologicos
+              .find((tecnologico) => tecnologico.name === selectedTecnologico)?.degree?.map((carrera, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => setSelectedCarrera(carrera)}
+                  style={[
+                    styles.carreraOption,
+                    selectedCarrera === carrera && styles.selectedCarrera,
+                  ]}
+                >
+                  <Text>{carrera}</Text>
+                </TouchableOpacity>
+              )) || <Text>No hay carreras disponibles</Text>}
+          </View>
         )}
-      </Picker>
 
-      {/* Carrera Dropdown, visible only when a Tecnologico is selected */}
-      {selectedTecnologico && (
-        <View>
-          {tecnologicos
-            .find((tecnologico) => tecnologico.name === selectedTecnologico)?.degree?.map((carrera, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleCarreraSelect(carrera)}
-                style={[styles.carreraOption, selectedCarreras.includes(carrera) && styles.selectedCarrera]}
-              >
-                <Text>{carrera}</Text>
-              </TouchableOpacity>
-            )) || (
-              <Text>No hay carreras disponibles</Text>
-            )}
+        <View style={styles.buttonContainer}>
+          <Button title="Registrar" onPress={handleRegister} color="#000080" />
         </View>
-      )}
 
-      <View style={styles.buttonContainer}>
-        <Button title="Registrar" onPress={handleRegister} color="#000080" />
+        <TouchableOpacity onPress={() => navigation.navigate('Inicio')}>
+          <Text style={styles.link}>Regresar</Text>
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity onPress={() => navigation.navigate('Inicio')}>
-        <Text style={styles.link}>Regresar</Text>
-      </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -198,6 +169,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
   },
+  subTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  carreraOption: {
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 5,
+  },
+  selectedCarrera: {
+    backgroundColor: '#cce5ff',
+  },
   buttonContainer: {
     width: '100%',
     marginTop: 10,
@@ -212,15 +197,6 @@ const styles = StyleSheet.create({
     color: 'blue',
     textDecorationLine: 'underline',
     fontSize: 16,
-  },
-  carreraOption: {
-    padding: 10,
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 5,
-  },
-  selectedCarrera: {
-    backgroundColor: '#cce5ff',
   },
 });
 

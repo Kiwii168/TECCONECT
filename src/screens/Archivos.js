@@ -1,21 +1,65 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, FlatList, ScrollView } from "react-native";
 
 function Archivos({ navigation }) {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [integrantes, setIntegrantes] = useState("");
+  const [proyectos, setProyectos] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [currentProject, setCurrentProject] = useState(null);
+
+  // Obtener todos los proyectos al cargar la pantalla
+  useEffect(() => {
+    fetch("https://app-tq3o5pftgq-uc.a.run.app/api/proyects")
+      .then((response) => response.json())
+      .then((data) => setProyectos(data))
+      .catch((error) => console.error("Error al obtener proyectos:", error));
+  }, []);
 
   const handleSubmit = () => {
-    console.log("Nombre:", nombre);
-    console.log("Descripción:", descripcion);
-    console.log("Integrantes:", integrantes);
-    alert("Datos enviados!");
+    const integrantsArray = integrantes.split(",").map((item) => item.trim()); // Convertir a array
+
+    const projectData = {
+      name: nombre,
+      description: descripcion,
+      integrants: integrantsArray,
+      degree: "Grado", // Agregar aquí el grado si es necesario
+    };
+
+    fetch("https://app-tq3o5pftgq-uc.a.run.app/api/new-proyect", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(projectData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Proyecto creado:", data);
+        setProyectos((prevProyectos) => [...prevProyectos, data]); // Agregar el proyecto a la lista
+        alert("Proyecto creado con éxito!");
+      })
+      .catch((error) => {
+        console.error("Error al crear proyecto:", error);
+        alert("Error al crear el proyecto.");
+      });
   };
 
+  const handleProjectPress = (project) => {
+    setCurrentProject(project);
+    setShowModal(true); // Mostrar la ventana modal con los detalles del proyecto
+  };
+
+  const renderProjectButton = ({ item }) => (
+    <TouchableOpacity style={styles.projectButton} onPress={() => handleProjectPress(item)}>
+      <Text style={styles.projectButtonText}>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={styles.container}>
-      {/* Campo para Nombre */}
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Formulario */}
       <Text style={styles.label}>Nombre:</Text>
       <TextInput
         style={styles.input}
@@ -24,7 +68,6 @@ function Archivos({ navigation }) {
         onChangeText={setNombre}
       />
 
-      {/* Área de texto para Descripción */}
       <Text style={styles.label}>Descripción:</Text>
       <TextInput
         style={[styles.input, styles.textArea]}
@@ -35,7 +78,6 @@ function Archivos({ navigation }) {
         numberOfLines={4}
       />
 
-      {/* Campo para Integrantes */}
       <Text style={styles.label}>Integrantes:</Text>
       <TextInput
         style={styles.input}
@@ -44,19 +86,47 @@ function Archivos({ navigation }) {
         onChangeText={setIntegrantes}
       />
 
-      {/* Botón azul */}
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Enviar</Text>
       </TouchableOpacity>
-    </View>
+
+      {/* Mostrar proyectos */}
+      <Text style={styles.projectListTitle}>Proyectos creados:</Text>
+      <FlatList
+        data={proyectos}
+        renderItem={renderProjectButton}
+        keyExtractor={(item) => item.id.toString()}
+      />
+
+      {/* Modal para mostrar detalles del proyecto */}
+      <Modal visible={showModal} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {currentProject && (
+              <>
+                <Text style={styles.modalTitle}>{currentProject.name}</Text>
+                <Text>{`Descripción: ${currentProject.description}`}</Text>
+                <Text>{`Integrantes: ${currentProject.integrants.join(", ")}`}</Text>
+              </>
+            )}
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowModal(false)}
+            >
+              <Text style={styles.modalButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1, // Permite el desplazamiento si el contenido excede el tamaño de la pantalla
     padding: 20,
-    backgroundColor: "#ffffff", // Fondo blanco
+    backgroundColor: "#ffffff",
   },
   label: {
     fontSize: 16,
@@ -73,21 +143,63 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   textArea: {
-    height: 100, // Altura específica para el área de texto
+    height: 100,
     textAlignVertical: "top",
   },
   button: {
-    backgroundColor: "#000080", // Azul
+    backgroundColor: "#000080",
     padding: 15,
     borderRadius: 5,
     alignItems: "center",
   },
   buttonText: {
-    color: "#fff", // Texto blanco
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  projectListTitle: {
+    marginTop: 20,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  projectButton: {
+    backgroundColor: "#f0f0f0",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 5,
+  },
+  projectButtonText: {
+    color: "#333",
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: 300,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalButton: {
+    backgroundColor: "#000080",
+    padding: 10,
+    marginTop: 20,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
 
 export default Archivos;
-

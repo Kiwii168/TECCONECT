@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, BackHandler } from 'react-native';
+import { ScrollView, View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, BackHandler } from 'react-native';
 
 // Obtener las dimensiones de la pantalla
 const { width, height } = Dimensions.get('window');
@@ -16,7 +16,7 @@ const Inicio = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/* Imagen */}
       <Image 
         source={require('../images/Logo.png')} // Utiliza require() para cargar imágenes locales
@@ -47,13 +47,13 @@ const Inicio = ({ navigation }) => {
       <TouchableOpacity onPress={() => navigation.navigate('Idioma')}>
         <Text style={styles.link}>Regresar</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',

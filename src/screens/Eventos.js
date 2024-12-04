@@ -44,12 +44,12 @@ function Eventos() {
     const eventDate = new Date(item.date._seconds * 1000); // Convertir segundos a milisegundos
     return (
       <View style={styles.item}>
-        <Image source={require("../images/Logo.png")} style={styles.image} />
+        <Image source={require("../images/Solacyt.jpg")} style={styles.image} />
         <View style={styles.textContainer}>
           <Text style={styles.title}>{item.name}</Text>
           <Text style={styles.description}>{item.description}</Text>
           <Text style={styles.date}>Fecha: {eventDate.toLocaleDateString()}</Text>
-          <Text style={styles.link} onPress={() => handleLinkPress("https://www.google.com")}>
+          <Text style={styles.link} onPress={() => handleLinkPress("https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwj1vb6674yKAxU7MNAFHfFUG2wQFnoECBEQAQ&url=https%3A%2F%2Fsolacyt.org%2F&usg=AOvVaw3d07o5IhCq0Eg_9fDaV_9g&opi=89978449")}>
             Más información
           </Text>
         </View>

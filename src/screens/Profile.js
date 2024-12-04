@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -158,7 +158,7 @@ function Profile({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <MaterialIcons name="account-circle" size={150} color="#000080" style={styles.profileIcon} />
 
       <View style={styles.infoContainer}>
@@ -216,15 +216,15 @@ function Profile({ navigation }) {
       </TouchableOpacity>
 
       <Button title="Sign Out" onPress={signOut} color="#f44336" />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: "center",
+    flexGrow: 1,
     justifyContent: "center",
+    alignItems: "center",
     padding: 20,
     backgroundColor: "white",
   },
